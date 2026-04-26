@@ -24,6 +24,7 @@
 // Sector number position in CR
 #define FLASH_CR_SNB_POS 3
 
+// flash is locked by default, two magic keys unlock it
 void flash_unlock(void)
 {
     if (FLASH_CR & FLASH_CR_LOCK)
@@ -43,6 +44,7 @@ static void flash_wait_busy(void)
     while (FLASH_SR & FLASH_SR_BSY);
 }
 
+// flash can only go 1 to 0, so we erase first (sets everything to 0xFF)
 void flash_erase_sector(uint8_t sector)
 {
     flash_wait_busy();
@@ -58,6 +60,7 @@ void flash_erase_sector(uint8_t sector)
     FLASH_CR &= ~FLASH_CR_SER;
 }
 
+// set PG bit, write the word, wait for flash controller to finish
 void flash_write_word(uint32_t address, uint32_t data)
 {
     flash_wait_busy();
@@ -65,6 +68,7 @@ void flash_write_word(uint32_t address, uint32_t data)
     FLASH_CR |= FLASH_CR_PG;
     FLASH_CR |= FLASH_CR_PSIZE_WORD;
 
+    // this is where the actual write happens
     *(volatile uint32_t *)address = data;
 
     flash_wait_busy();

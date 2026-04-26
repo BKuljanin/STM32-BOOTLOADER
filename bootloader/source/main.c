@@ -100,28 +100,16 @@ int main(void)
     uart2_write("Update mode: waiting for firmware...\r\n");
     receive_firmware();
 
-    // After successful update, jump to new app
+    // done, jump to new app
     uart2_write("Update complete, launching app...\r\n");
     delay(100000);
     jump_to_app();
 
-    // Should never reach here
+    // shouldn't get here
     while (1);
 }
 
-/*
- * Firmware receive protocol:
- *   1. Wait for CMD_SYNC from host
- *   2. Reply ACK
- *   3. Receive 4 bytes: firmware size (little endian)
- *   4. Reply ACK
- *   5. Erase app flash sectors
- *   6. Reply ACK (erase done)
- *   7. Loop: receive CMD_DATA + 128 bytes + 4 byte CRC
- *      - Verify CRC, write to flash, reply ACK (or NACK on bad CRC)
- *   8. Receive CMD_DONE + 4 byte total CRC
- *      - Verify against written flash, reply ACK/NACK
- */
+// sync -> size -> erase -> receive packets with CRC -> final CRC check
 static void receive_firmware(void)
 {
     uint8_t cmd;
@@ -170,7 +158,7 @@ static void receive_firmware(void)
             continue;
         }
 
-        // How many bytes in this packet
+        // last packet might be smaller
         uint32_t chunk = fw_size - bytes_written;
         if (chunk > PACKET_SIZE)
             chunk = PACKET_SIZE;
@@ -194,8 +182,7 @@ static void receive_firmware(void)
             continue;
         }
 
-        // Write to flash (word aligned)
-        // Pad last chunk to word boundary if needed
+        // write to flash word by word
         uint32_t words = (chunk + 3U) / 4U;
         uint32_t *src = (uint32_t *)buf;
         for (uint32_t i = 0; i < words; i++)
@@ -220,7 +207,7 @@ static void receive_firmware(void)
                               | ((uint32_t)crc_buf[2] << 16)
                               | ((uint32_t)crc_buf[3] << 24);
 
-        // Verify entire flash content
+        // check what we wrote matches
         uint32_t actual_crc = crc32((const uint8_t *)APP_START_ADDR, fw_size);
         if (actual_crc == expected_crc)
         {
@@ -237,7 +224,7 @@ static void receive_firmware(void)
     led_off();
 }
 
-// CRC32 (same polynomial as standard CRC32: 0xEDB88320 reflected)
+// standard CRC32
 static uint32_t crc32(const uint8_t *data, uint32_t len)
 {
     uint32_t crc = 0xFFFFFFFFU;
