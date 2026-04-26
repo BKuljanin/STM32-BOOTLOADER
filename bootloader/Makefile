@@ -2,20 +2,20 @@
 CC=arm-none-eabi-gcc
 MACH=cortex-m4
 CFLAGS= -c -mcpu=$(MACH) -mthumb -mfloat-abi=soft -std=gnu11 -Wall -O0 -g
-LDFLAGS= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=nano.specs -T source/stm32_ls.ld -Wl,-Map=out/final.map
+LDFLAGS= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=nano.specs -T source/stm32_ls.ld -Wl,-Map=out/bootloader.map
 
 # Collect all .c files from source/ and generate .o paths
 SRCS = $(wildcard source/*.c)
 OBJS = $(patsubst source/%.c, out/%.o, $(SRCS))
 
-all: $(OBJS) out/final.elf
+all: $(OBJS) out/bootloader.elf
 
 # Pattern rule for compiling source/*.c to out/*.o
 out/%.o: source/%.c
 	mkdir -p out
 	$(CC) $(CFLAGS) -o $@ $^
 
-out/final.elf: $(OBJS)
+out/bootloader.elf: $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
@@ -26,8 +26,7 @@ OPENOCD=C:/ST/STM32CubeIDE_1.19.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.
 OPENOCD_SCRIPTS=C:/ST/STM32CubeIDE_1.19.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.debug.openocd_2.3.100.202501240831/resources/openocd/st_scripts
 
 flash:
-	"$(OPENOCD)" -s openocd -s "$(OPENOCD_SCRIPTS)" -f interface/stlink-dap.cfg -f target/stm32f4x.cfg -c "program out/final.elf verify reset exit"
+	"$(OPENOCD)" -s openocd -s "$(OPENOCD_SCRIPTS)" -f interface/stlink-dap.cfg -f target/stm32f4x.cfg -c "program out/bootloader.elf verify reset exit"
 
-# Starts OpenOCD as GDB server on port 3333
 debug:
 	"$(OPENOCD)" -s openocd -s "$(OPENOCD_SCRIPTS)" -f interface/stlink-dap.cfg -f target/stm32f4x.cfg
