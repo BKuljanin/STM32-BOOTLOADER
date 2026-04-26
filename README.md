@@ -1,6 +1,6 @@
 # STM32 UART Bootloader
 
-Custom UART bootloader for STM32F446RE (Nucleo board). Written in bare-metal C with register-level peripheral access, no HAL or CMSIS.
+Custom UART bootloader for STM32F446RE (Nucleo board). Written in bare metal C with register level peripheral access.
 
 The bootloader occupies the first 16KB of flash (sector 0) and can receive new application firmware over UART from a Python script on the PC. This allows firmware updates without a debugger.
 
@@ -26,8 +26,8 @@ The Python flash tool (`tools/flash.py`) sends the `.bin` file to the bootloader
 1. Sync handshake
 2. Send firmware size (4 bytes, little endian)
 3. Bootloader erases app flash sectors 1-7
-4. Data sent in 128-byte packets, each with CRC32 verification
-5. Final whole-image CRC32 check against flash contents
+4. Data sent in 128 byte packets, each with CRC32 verification
+5. Final CRC32 check
 
 ## Project structure
 
@@ -37,7 +37,7 @@ STM32-BOOTLOADER/
 │   ├── source/
 │   │   ├── main.c          Bootloader logic, UART, jump to app
 │   │   ├── main.h          App start address define
-│   │   ├── flash.c         Register-level flash erase/write driver
+│   │   ├── flash.c         Flash erase/write driver
 │   │   ├── flash.h
 │   │   ├── stm32_startup.c Vector table and Reset_Handler
 │   │   ├── stm32_ls.ld     Linker script (16KB at 0x08000000)
@@ -92,10 +92,3 @@ Hold the blue button and press reset before running the flash script.
 - Button: PC13 (active low, triggers update mode)
 - Clock: 16MHz HSI (no PLL)
 
-## Key concepts
-
-- Flash memory organization: sectors, erase before write, unlock sequence
-- Custom linker scripts placing two independent binaries in separate flash regions
-- Vector table relocation via SCB->VTOR
-- Reliable UART transfer protocol with per-packet and whole-image CRC32
-- Full system: embedded firmware + host-side Python tooling
