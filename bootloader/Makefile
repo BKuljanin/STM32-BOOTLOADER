@@ -1,7 +1,7 @@
 # Toolchain
 CC=arm-none-eabi-gcc
 MACH=cortex-m4
-CFLAGS= -c -mcpu=$(MACH) -mthumb -mfloat-abi=soft -std=gnu11 -Wall -O0 -g
+CFLAGS= -c -mcpu=$(MACH) -mthumb -mfloat-abi=soft -std=gnu11 -Wall -O0 -g -Isource
 LDFLAGS= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=nano.specs -T source/stm32_ls.ld -Wl,-Map=out/bootloader.map
 
 # Collect all .c files from source/ and generate .o paths
