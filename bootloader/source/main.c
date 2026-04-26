@@ -2,7 +2,7 @@
  * STM32 UART Bootloader
  *
  * Build and Flash (CMD):
- *   cd C:\Users\Bogdan Kuljanin\Documents\Git\STM32-BOOTLOADER\bootloader
+ *   cd bootloader/
  *   setup_env.bat
  *   make clean
  *   make
