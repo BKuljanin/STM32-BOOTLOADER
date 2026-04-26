@@ -156,11 +156,9 @@ static void receive_firmware(void)
     uart2_putchar(RSP_ACK);
 
     // Erase app sectors
-    uart2_write("Erasing flash...\r\n");
     flash_unlock();
     flash_erase_app_sectors();
     uart2_putchar(RSP_ACK);
-    uart2_write("Erase done\r\n");
 
     // Receive data packets
     while (bytes_written < fw_size)
@@ -227,13 +225,11 @@ static void receive_firmware(void)
         if (actual_crc == expected_crc)
         {
             uart2_putchar(RSP_ACK);
-            uart2_write("CRC OK\r\n");
         }
         else
         {
             uart2_putchar(RSP_NACK);
-            uart2_write("CRC FAIL\r\n");
-            while (1);  // Halt on failure
+            while (1);
         }
     }
 
