@@ -2,7 +2,6 @@
 
 // Flash register base
 #define FLASH_BASE      0x40023C00U
-#define FLASH_ACR       (*(volatile uint32_t *)(FLASH_BASE + 0x00U))
 #define FLASH_KEYR      (*(volatile uint32_t *)(FLASH_BASE + 0x04U))
 #define FLASH_SR        (*(volatile uint32_t *)(FLASH_BASE + 0x0CU))
 #define FLASH_CR        (*(volatile uint32_t *)(FLASH_BASE + 0x10U))
